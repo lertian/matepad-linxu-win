@@ -746,3 +746,26 @@ make ARCH=arm64 -j8 Image dtbs               # 本地盘 -j8；挂载目录建�
 1. 在**挂载目录**跑 `make ARCH=arm64 -J3 Image dtbs`（稳 ✓ 约 60-90 分钟 ✓）
 2. 成功后：`work/kernel/Image-mrr-w29` + `sm8250-huawei-mrr-w29.dtb`
 3. 然后按 §21.1：**ESP 扩到 64MB** + 重排 patch 分区 + 改 AutoReturnDxe 的 blob 偏移 ✓ → 打包 → adb 刷入 → 启动看效果 ✓
+
+### 22. Windows ARM64 事实核查（2026-10-06）
+
+**✅ 之前"有人跑过"是对的**：
+- Mu-Silicium `Status.md` 有 **Snapdragon 865/865+/870 分类** ✓
+  其中 **OnePlus 8T（kebab, SD865）State: Inactive**（= 曾支持、现不活跃 ✓）
+- ⚠️ 我之前引用的 "sm8250 devices can not run windows"（edk2-msm issue #300）
+  是**旧评论** ✗，与机型表矛盾 ⇒ **以机型表为准：SM8250 能跑 Windows（至少到可用程度）** ✓
+
+**★ 官方安装指南（照它做 ✓）**
+`github.com/edk2-porting/renegade-project.org/blob/master/en/windows/Installation-guide.md`
+步骤：Windows PE → Dism++ → **WOA-Drivers** → Win ARM64 ISO（UUP dump）→ diskpart 分区 → 部署
+
+**驱动**：`github.com/edk2-porting/WOA-Drivers`
+- 用法：`./extract.sh <DEVICE>` —— **从设备自身固件里提取 Windows 驱动** ✓（不限机型 ✓）
+- README 未列机型；含 any-SoC 组件 + MSM8998 平台目录
+
+**Windows ISO**：`microsoft.com/software-download/windows11arm64`
+- ⚠️ **curl 拿直链返回 403** ✗ ⇒ 必须**浏览器会话** ✓（需人工点击）
+
+**⇒ 结论（更新）**：SM8250 跑 Windows 有先例 ✓ —— 但**具体到华为 MatePad Pro 10.8"（MRR-W29）还没有人做过** ✗
+⇒ 我们已有的优势：**UEFI ✓ + ACPI 表（DSDT/MADT/FACP/GTDT/BGRT 已在固件里 ✓）+ UFS 在 UEFI 可读写 ✓**
+⇒ 待办：Windows 引导文件上 ESP（需先把 ESP 扩到 64MB ✓）→ 验证引导管理器 → 再谈安装
