@@ -1,0 +1,53 @@
+## @file
+#  AutoReturnDxe —— mrr-w29 平台的"自动收尾"驱动
+#  主路径 ReadyToBoot：截屏 dump + 回写原厂 boot；兜底 180s 定时器；patch+0x8FC0000 诊断块）。
+#  不注册 ExitBootServices（EBS 里做存储 I/O 会破坏内核的 ExitBootServices，真机实测）。
+#
+#  该模块同时出现在 mrr-w29.dsc 的 [Components]、
+#  Platform/Huawei/sm8250/mrr-w29.fdf.inc（FV 文件）以及
+#  Platform/Qualcomm/sm8250/Apriori.fdf.inc 的 apriori 列表（BdsDxe 之前，见 .c 顶部说明）。
+#
+#  Copyright (c) 2026, mrr-w29 porting project. SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = AutoReturnDxe
+  FILE_GUID                      = DEF1BB3D-78B1-49CD-A169-C2A8D8FFD906
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = AutoReturnDxeEntryPoint
+
+[Sources]
+  AutoReturnDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  ArmPkg/ArmPkg.dec
+  Silicon/Qualcomm/QcomPkg/QcomPkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+  UefiLib
+  ArmLib
+  BaseLib
+  BaseMemoryLib
+  MemoryAllocationLib
+  PcdLib
+  PrintLib
+
+[Protocols]
+  gEfiBlockIoProtocolGuid           ## CONSUMES
+
+[Guids]
+  gEfiEventReadyToBootGuid          ## CONSUMES
+
+[Pcd]
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferAddress   ## CONSUMES
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferWidth     ## CONSUMES
+  gQcomTokenSpaceGuid.PcdMipiFrameBufferHeight    ## CONSUMES
+
+[Depex]
+  TRUE

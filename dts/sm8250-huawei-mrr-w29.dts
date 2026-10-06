@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
+/*
+ * Copyright (c) 2023 Luka Panio <lukapanio@gmail.com>
+ */
+
+/dts-v1/;
+
+#include "sm8250-huawei-mrr-w29-common.dtsi"
+
+/ {
+	model = "Huawei MatePad Pro 10.8 2021 (Tianma)";
+	compatible = "huawei,mrr-w29", "qcom,sm8250";
+};
+
+&display_panel {
+	compatible = "huawei,mrr-w29-tianma-nt36532", "novatek,nt36532";
+	status = "okay";
+};
+
+&touchscreen {
+	firmware-name = "novatek/nt36532_tianma.bin";
+	status = "okay";
+};
